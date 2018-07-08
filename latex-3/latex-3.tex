@@ -1,0 +1,208 @@
+\documentclass[mathserif,9pt,serif]{beamer}
+\usepackage{beamerthemesplit}
+\usepackage[ukrainian]{babel}
+\usepackage[cp1251]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{afterpage}
+\usepackage{fancybox}
+\usetheme{Warsaw}
+\usepackage{pgfpages}
+
+\setbeamertemplate{headline}%[default]
+{}
+
+
+
+\xdefinecolor{MyGreen-rgb}{rgb}{0,0.91,0.04001}
+\xdefinecolor{MyGreen}{cmyk}{0.92,0,0.87,0.09}
+
+
+\include{epsfig}
+
+\title{ Построение точной конечно-элементной аппроксимации}
+\author[Локтев Антон] {Курсовая работа Локтева Антона}
+\date{Одесса – 2018}
+
+\institute{Научный руководитель: к. физ.-мат. наук, доцент Вербицкий В.В.}
+
+%\pagenumbering{arabic}
+%\pagestyle {plain}
+
+\begin{document}
+\section{Title}
+\frame{
+\titlepage
+}
+\frame{
+    \frametitle{Постановка задачи}
+   % \centering
+    {
+   Для краевой задачи:
+   $$
+   \begin{array}{l}
+     -{u(x)}''+q(x)u(x)=f(x), x\in (a,b), \\
+     u(a)=0, u(b)=0
+   \end{array}\eqno{(1)}
+$$
+где $$q(x)\in C^{0}[a,b], q(x)\geq 0.$$
+
+Необходимо построить:
+
+Точную конечно-элементную аппроксимацию данной задачи по точной схеме метода конечных элементов.
+
+Построить оценку погрешности конечно-элементного решения краевой задачи.
+
+Написать программное приложение на языке пакета MATLAB, которое находит решение поставленной задачи, используя точную схему.
+
+% width=0.5\linewidth,
+    }
+}\frame{
+    \frametitle{Вариационная формулировка задачи}
+Найти такое $u\in H^1(a,b)$, что
+
+$$a(u,v)=f(v)\quad \forall v\in H^1(a,b),$$
+
+где
+$$
+a(u,v)=\int\limits_a^bu'v'+q(x)uvdx,
+$$
+$$
+f(v)=\int\limits_a^bf(x)vdx.
+$$
+Определим конечное подпростанство
+$${ V }_{ h }=\left\{ { v }_{ h }\in { { S }_{ n } }^{ 1,0 }\left[ a,b \right]  \right\} $$
+пространства $H^1(a,b).$
+Тогда вариационной задаче поставим в соответствие следующую конечномерную задачу:
+найти такое ${ u }_{ h }\in{ V }_{ h },$ что
+$$a({ u }_{ h },{ v }_{ h })=f({ v }_{ h })$$}
+\frame{
+    \frametitle{Метод конечных элементов}
+Конечномерная задача представляет собой систему линейных алгебраических уравнений. Решение задачи будем искать в виде:
+$$
+u_h=\sum\limits_{i=1}^n\alpha_i\varphi_i(x),\eqno{(2)}
+$$
+где $\varphi_i(x)$ --- базисные функции пространства линейных непрерывных сплайнов,
+а
+ коэффициенты $\alpha_i$ необходимо определить из СЛАУ
+$$
+ Ay=b, \eqno{(3)}
+$$
+где
+$$
+  A=\left[
+       \begin{array}{ccccc}
+         2/h+hq(x_1) & -1/h &   & &     \\
+         -1/h & 2/h+q(x_2) & -1/h &  &   \\
+              &   &   & & \\
+              &\ddots  & \ddots  & \ddots & \\
+              &   &   & & \\
+        &  & -1/h & 2/h+q(x_{n-1}) & -1/h     \\
+       & &  & -1/h & 2/h+hq(x_{n})     \\
+       \end{array}
+     \right],
+$$
+  $$
+ y=[\alpha_1,\alpha_2,\dots,\alpha_{n}]^T,
+ $$
+ $$
+ b=[hf(x_1),hf(x_2),\dots,hf(x_{n-1}),hf(x_{n})]^T.
+ $$
+}
+\frame{
+   \frametitle{Матрица для конечного элемента}
+СЛАУ для конечного элемента в матричной форме:
+$$\begin{bmatrix} a\left( { \varphi  }_{ 1 },{ \psi  }_{ 1 } \right)  & a\left( { \varphi  }_{ 2 },{ \psi  }_{ 1 } \right)  \\ a\left( { \varphi  }_{ 1 },{ \psi  }_{ 2 } \right)  & a\left( { \varphi  }_{ 2 },{ \psi  }_{ 2 } \right)  \end{bmatrix}\left[ \begin{matrix} { \alpha  }_{ l } \\ { \alpha  }_{ k } \end{matrix} \right] =\left[ \begin{matrix} f\left( { { \psi  }_{ 1 } } \right)  \\ f\left( { { \psi  }_{ 2 } } \right)  \end{matrix} \right] $$
+где
+$${ \varphi  }_{ 1 }\left( x \right) =\frac { { x }_{ 2 }-x }{ h }, \quad { \varphi  }_{ 2 }\left( x \right) =\frac { x-{ x }_{ 1 } }{ h }; $$
+$${ \psi  }_{ 1 }\left( x \right) =\frac { \sinh { \left( \alpha \left( { x }_{ 2 }-x \right)  \right)  }  }{ \sinh { \left( \alpha h \right)  }  }, \quad { \psi  }_{ 2 }\left( x \right) =\frac { \sinh { \left( \alpha \left( x-{ x }_{ 1 } \right)  \right)  }  }{ \sinh { \left( \alpha h \right)  }  }. $$
+}
+
+% width=0.5\linewidth,
+\frame{
+   \frametitle{Матрица для конечного элемента}
+
+$$a\left( { \varphi  }_{ 1 },{ \psi  }_{ 1 } \right) =\int\displaylimits_{ { x }_{ 1 } }^{ { x }_{ 2 } }{ ({ { \varphi  }_{ 1 } }\prime { { \psi  }_{ 1 } }\prime  } +\overline { q } { \varphi  }_{ 1 }{ \psi  }_{ 1 })dx = \int\displaylimits_{ { x }_{ 1 } }^{ { x }_{ 2 } }{ ({ { \varphi  }_{ 1 } }\prime { { \psi  }_{ 1 } }\prime  })dx + \overline { q } \int\displaylimits_{ { x }_{ 1 } }^{ { x }_{ 2 } } ({ \varphi  }_{ 1 }{ \psi  }_{ 1 })dx.$$
+
+$$a\left( { \varphi  }_{ 1 },{ \psi  }_{ 1 } \right) = \frac { 1 }{ h } +\overline { q } \left[ \frac { \cosh { \left( \alpha h \right)  }  }{ \alpha \sinh { \left( \alpha h \right)  }  } -\frac { 1 }{ { \alpha  }^{ 2 }h }  \right] = a\left( { \varphi  }_{ 2 },{ \psi  }_{ 2 } \right). $$
+
+$$a\left( { \varphi  }_{ 1 },{ \psi  }_{ 2 } \right) = \int\displaylimits_{ { x }_{ 1 } }^{ { x }_{ 2 } }{ ({ { \varphi  }_{ 1 } }\prime { { \psi  }_{ 2 } }\prime  })dx + \overline { q } \int\displaylimits_{ { x }_{ 1 } }^{ { x }_{ 2 } } ({ \varphi  }_{ 1 }{ \psi  }_{ 2 })dx.$$
+
+$$a\left( { \varphi  }_{ 1 },{ \psi  }_{ 2 } \right) =-\frac { 1 }{ h } +\overline { q } \left[ \frac { -1 }{ \alpha \sinh { \left( \alpha h \right)  }  } +\frac { 1 }{ { \alpha  }^{ 2 }h }  \right] = a\left( { \varphi  }_{ 2 },{ \psi  }_{ 1 } \right). $$
+
+}
+
+\frame{
+    \frametitle{Вычислительный эксперимент}
+  В качестве тестового примера рассматривалась следующая краевая задача:
+В качестве тестового примера рассматривалась следующая задача Дирихле:
+\begin{equation}\label{zz1}
+-{u(x)}''+q(x)u(x)=f(x),\quad x\in \left( 0,1 \right)
+\end{equation}
+\begin{equation}\label{zz2}
+u(0)=1,\enspace u(1)=e,
+\end{equation}
+где$f(x)$ – кусочно-непрерывная функция:
+$$
+f\left( x \right) =\begin{cases} -0.5{ e }^{ x },\quad 0<x<0.5 \\ 0,\quad 0.5<x<1 \end{cases}
+$$
+Точное решение этой задачи
+\begin{equation}\label{zz3}
+u(x)={ e }^{ x }
+\end{equation}
+}
+\frame{
+    \frametitle{Результаты вычислений}
+
+
+\begin{figure}[h]
+\center{\includegraphics[scale=0.65]{first}} \caption{Два интегрвала}\label{first}
+\end{figure}
+}
+
+\frame{
+    \frametitle{Результаты вычислений}
+
+\begin{figure}[h]
+\center{\includegraphics[scale=0.6]{second}} \caption{Четыре интервала} \label{second}
+\end{figure}
+}
+
+\frame{
+    \frametitle{Результаты вычислений}
+\begin{figure}[h]
+\center{\includegraphics[scale=0.6]{third}} \caption{Десять интервалов} \label{third}
+\end{figure}
+}
+
+\frame{
+    \frametitle{Результаты вычислений}
+\begin{figure}[h]
+\center{\includegraphics[scale=0.6]{error}} \caption{Погрешности в вычислениях} \label{fourth}
+\end{figure}
+}
+
+\frame{
+    \frametitle{Заключение}
+\begin{enumerate}
+    \item Для краевой задачи была построена конечно-элементная аппроксимация для ОДУ по точной схеме на равномерной сетке.
+    \item
+    Показано, что при особом выборе базисных и пробных функций получаем точное решение в узлах сетки.
+    \item
+       Написано программное приложение на языке пакета MATLAB, которое находит решение поставленной задачи точной схемой метода конечных элементов.
+    \item
+    Результаты вычислительных экспериментов показали высокую эффективность метода конечных элементов.
+\end{enumerate}
+}
+\frame{
+    \frametitle{Конец доклада}
+    \centering
+    {
+     Благодарю за внимание
+    }
+}
+\end{document} 
